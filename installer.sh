@@ -71,10 +71,15 @@ if [ ! -f "$lc_base_folder/config/interface_used" ]; then
 		echo The user $USER choose the following interface: $lc_input_interface from $lc_list_int >>$lc_base_folder/logs/$lc_int_log
 	fi
 fi
+## Checking if ifdata is installed if not installing it
+if [ ! -f "/usr/bin/ifdata" ]; then
+	sudo apt-get install moreutils -y >/dev/null
+fi
+
 ## Divide the ip in variables
 lc_eth_int=$( cat $lc_base_folder/config/interface_used )
-lc_ip=$(echo `sudo ifconfig $lc_eth_int 2>/dev/null|awk '/inet addr:/ {print $2}'|sed 's/addr://'` )
-lc_eth_netmask=$( sudo ifconfig $lc_eth_int |sed -rn '2s/ .*:(.*)$/\1/p' )
+lc_ip=$(sudo ifdata -pa $lc_eth_int)
+lc_eth_netmask=$(sudo ifdata -pn $lc_eth_int)
 lc_ip_p1=$(echo ${lc_ip} | tr "." " " | awk '{ print $1 }')
 lc_ip_p2=$(echo ${lc_ip} | tr "." " " | awk '{ print $2 }')
 lc_ip_p3=$(echo ${lc_ip} | tr "." " " | awk '{ print $3 }')
